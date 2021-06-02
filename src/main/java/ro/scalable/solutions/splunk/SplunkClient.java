@@ -16,6 +16,9 @@ import java.util.Map;
 
 import static ro.scalable.solutions.splunk.SplunkConfigKeys.*;
 
+/**
+ * Splunk client.
+ */
 public class SplunkClient {
     private static final Logger log = LoggerFactory.getLogger(SplunkClient.class);
 
@@ -23,21 +26,46 @@ public class SplunkClient {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String uri;
 
+    /**
+     * Constructor.
+     *
+     * @param config Splunk configurations
+     */
     private SplunkClient(SplunkConfig config) {
         this.config = config;
         this.uri = String.format("%s/services/collector/event",
                 config.getString(SPLUNK_SERVER, "https://localhost"));
     }
 
+    /**
+     * Splunk client factory.
+     *
+     * @param config Splunk configurations
+     */
     public static SplunkClient create(SplunkConfig config) {
         return new SplunkClient(config);
     }
 
+    /**
+     * Publish an event on Splunk server
+     *
+     * @param event Event details
+     * @return server response
+     * @throws JsonProcessingException on json parser errors.
+     */
     public String sendEvent(Map<String, Object> event) throws JsonProcessingException {
         String index = config.getString(SPLUNK_INDEX);
         return sendEvent(index, event);
     }
 
+    /**
+     * Publish an event on Splunk server
+     *
+     * @param index Splunk index
+     * @param event Event details
+     * @return server response
+     * @throws JsonProcessingException on json parser errors
+     */
     public String sendEvent(String index, Map<String, Object> event) throws JsonProcessingException {
         String json = makeEvent(index, event);
         log.debug("Send event: {} to index: {}", json, index);
@@ -53,6 +81,14 @@ public class SplunkClient {
                 .join();
     }
 
+    /**
+     * Build and serialize event as a Json string.
+     *
+     * @param index Splunk index
+     * @param event  Event details
+     * @return Splunk data to send as a Json string
+     * @throws JsonProcessingException on json parser errors
+     */
     private String makeEvent(String index, Map<String, Object> event) throws JsonProcessingException {
         SplunkEvent splunkEvent = new SplunkEvent();
         splunkEvent.time = Instant.now().getEpochSecond();
@@ -66,6 +102,9 @@ public class SplunkClient {
         return mapper.writeValueAsString(splunkEvent);
     }
 
+    /**
+     * Splunk data
+     */
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     private static class SplunkEvent {
         long time;

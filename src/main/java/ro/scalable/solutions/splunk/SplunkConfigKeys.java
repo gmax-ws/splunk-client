@@ -1,5 +1,8 @@
 package ro.scalable.solutions.splunk;
 
+/**
+ * Splunk configuration keys.
+ */
 public class SplunkConfigKeys {
     static final String SPLUNK_SERVER = "splunk.server";
     static final String SPLUNK_INDEX = "splunk.index";

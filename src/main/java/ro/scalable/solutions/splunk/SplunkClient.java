@@ -99,6 +99,7 @@ public class SplunkClient {
         splunkEvent.event = event;
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
         return mapper.writeValueAsString(splunkEvent);
     }
 
